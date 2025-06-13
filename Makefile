@@ -1,5 +1,5 @@
 PROJECT_HOME=$(dir $(firstword) $(MAKEFILE_LIST))
-IMAGE=go-langclient
+IMAGE=go-languageclient
 REGISTRY=ghcr.io/raft-tech
 VERSION=dev
 FULL_IMAGE=${IMAGE}:${VERSION}
