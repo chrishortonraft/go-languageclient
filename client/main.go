@@ -57,7 +57,7 @@ func makeUniqueRoot(workspaceMode bool) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	data := []byte("Hello world")
+	data := []byte("def main():\n\tprint('Hello world')")
 	err = os.WriteFile("/app/workspace/main.py", data, 0644)
 	if err != nil {
 		return "", err

@@ -68,7 +68,14 @@ The HTTP server provides a simple API for sending LSP requests to Pyright.
 
 For a proof of concept - `hover` and `completion` methods are available to query.
 
-#### Example Request:
+These example requests will run on the following code, and request `hover` and `completion` from the Language Server.
+
+```python
+def main():
+    print('Hello World')
+```
+
+#### Example Request
 
 ```json
 {
@@ -79,7 +86,7 @@ For a proof of concept - `hover` and `completion` methods are available to query
     },
     "position": {
       "line": 0,
-      "character": 10
+      "character": 17
     }
   }
 }
@@ -98,7 +105,7 @@ curl -X POST http://localhost:8080/api \
              },
              "position": {
                "line": 0,
-               "character": 10
+               "character": 17
              }
            }
          }'
@@ -121,7 +128,7 @@ curl -X POST http://localhost:8080/api \
              },
              "position": {
                "line": 0,
-               "character": 10
+               "character": 17
              }
            }
          }'
@@ -136,21 +143,21 @@ The server will respond with the result of the request. If successful, you will 
 ```json
 {
   "result": {
-    "id": "c382058e-2a41-4fab-a7d9-cd5a3d57707e",
+    "id": "3418dfe0-c46f-41ca-a615-f77dcac6adbc",
     "jsonrpc": "2.0",
     "result": {
       "contents": {
         "kind": "plaintext",
-        "value": "(function) world: Unknown"
+        "value": "(function) def print(\n    *values: object,\n    sep: str | None = \" \",\n    end: str | None = \"\\n\",\n    file: SupportsWrite[str] | None = None,\n    flush: Literal[False] = False\n) -> None"
       },
       "range": {
         "end": {
-          "character": 11,
-          "line": 0
+          "character": 6,
+          "line": 1
         },
         "start": {
-          "character": 6,
-          "line": 0
+          "character": 1,
+          "line": 1
         }
       }
     }
