@@ -57,6 +57,11 @@ func makeUniqueRoot(workspaceMode bool) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	data := []byte("Hello world")
+	err = os.WriteFile("/app/workspace/main.py", data, 0644)
+	if err != nil {
+		return "", err
+	}
 	log.Print("Unique File Path made: ", userFilePath)
 	return userFilePath, nil
 }
