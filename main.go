@@ -38,13 +38,11 @@ func (g *GoProxy) ProcessRequest(ctx context.Context, method string, params any)
 
 // HTTP request handler
 func handleRequest(proxy *GoProxy, w http.ResponseWriter, r *http.Request) {
-	// Parse the incoming JSON request body
 	var req struct {
-		Method string      `json:"method"`
-		Params interface{} `json:"params"`
+		Method string `json:"method"`
+		Params any    `json:"params"`
 	}
 
-	// Decode the incoming request
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, fmt.Sprintf("Failed to parse request: %v", err), http.StatusBadRequest)
 		return
@@ -52,7 +50,6 @@ func handleRequest(proxy *GoProxy, w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("Recieved Request:", req.Method)
 
-	// Process the request using the GoProxy
 	ctx := context.Background()
 	result, err := proxy.ProcessRequest(ctx, req.Method, req.Params)
 	if err != nil {
@@ -60,8 +57,7 @@ func handleRequest(proxy *GoProxy, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Respond with the result
-	response := map[string]interface{}{
+	response := map[string]any{
 		"result": result,
 	}
 
@@ -72,19 +68,16 @@ func handleRequest(proxy *GoProxy, w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	// Initialize the proxy
 	proxy := &GoProxy{}
 	err := proxy.InitializeProxy("python", false)
 	if err != nil {
 		log.Fatalf("Failed to initialize proxy: %v", err)
 	}
 
-	// Set up the HTTP server
 	http.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
 		handleRequest(proxy, w, r)
 	})
 
-	// Start the HTTP server
 	port := ":8080"
 	fmt.Printf("Server running on port %s...\n", port)
 	log.Fatal(http.ListenAndServe(port, nil))

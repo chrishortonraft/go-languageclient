@@ -1,8 +1,5 @@
 module golang-client
 
-go 1.24.3
+go 1.23
 
-require (
-	github.com/google/uuid v1.6.0
-	github.com/gorilla/websocket v1.4.1
-)
+require github.com/google/uuid v1.6.0

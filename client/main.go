@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"github.com/google/uuid"
 )
 
 // Client is the interface for interacting with any language client.
@@ -24,8 +22,7 @@ type config struct {
 
 // NewClient creates a new LSP client based on the specified language.
 func NewClient(language string, workspaceMode bool) (Client, error) {
-	id := uuid.New()
-	root := makeUniqueRoot(id, workspaceMode)
+	root := makeUniqueRoot(workspaceMode)
 	cfg := config{
 		language:      language,
 		root:          root,
@@ -40,16 +37,14 @@ func NewClient(language string, workspaceMode bool) (Client, error) {
 	}
 }
 
-func makeUniqueRoot(id uuid.UUID, workspaceMode bool) string {
+func makeUniqueRoot(workspaceMode bool) string {
 	if workspaceMode {
-		dir := filepath.Join(id.String(), "workspace")
+		dir := filepath.Join("/app/workspace")
 		os.MkdirAll(dir, 0755)
-		filePath := filepath.Join(dir, "main.py")
-		os.WriteFile(filePath, []byte("print('Hello, World!')"), 0644)
 		return dir
 	}
 	// Single file mode (default)
-	userFilePath := filepath.Join(id.String(), "main.py")
+	userFilePath := filepath.Join("/app/workspace/main.py")
 	os.WriteFile(userFilePath, []byte(""), 0644)
 	return userFilePath
 }
