@@ -6,8 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"os/exec"
+	"path/filepath"
 
 	"github.com/google/uuid"
 )
@@ -59,6 +61,7 @@ func NewPythonClient(config config) (*PythonClient, error) {
 		return nil, fmt.Errorf("failed to read startup message: %v", err)
 	}
 
+	log.Print("Root URI: ", client.config.root)
 	// Send an init message to pyright to let it know our settings, etc
 	err = client.InitializePyright()
 	if err != nil {
@@ -69,6 +72,9 @@ func NewPythonClient(config config) (*PythonClient, error) {
 }
 
 func (p *PythonClient) InitializePyright() error {
+	workspaceRoot := filepath.Join("file://", p.config.root)
+	log.Print("Workspace Root: ", workspaceRoot)
+
 	initRequest := map[string]any{
 		"jsonrpc": "2.0",
 		"id":      p.sessionId, // You can generate a unique ID if needed
@@ -78,7 +84,6 @@ func (p *PythonClient) InitializePyright() error {
 			// so when it closes, so does pyright. Could lead to some potentially weird bugs.
 			// Going to leave it nil for now so it doesn't auto close...
 			"processId": nil,
-			"rootUri":   p.config.root, // Dynamic Path to users workspace root
 			"capabilities": map[string]any{
 				"textDocument": map[string]any{
 					"completion": map[string]any{
@@ -89,12 +94,12 @@ func (p *PythonClient) InitializePyright() error {
 					},
 				},
 			},
-			// "workspaceFolders": []map[string]any{
-			// 	{
-			// 		"uri":  "file:///path/to/your/workspace/folder",
-			// 		"name": "Your Workspace Folder",
-			// 	},
-			// },
+			"workspaceFolders": []map[string]any{
+				{
+					"uri":  workspaceRoot,
+					"name": "Workspace Folder",
+				},
+			},
 		},
 	}
 
@@ -105,12 +110,19 @@ func (p *PythonClient) InitializePyright() error {
 	}
 
 	// Get server initialization response with its capabilites
-	capabilities, err := p.ReadResponse()
+	starting_instance, err := p.ReadResponse()
 	if err != nil {
 		return fmt.Errorf("failed to read response: %v", err)
 	}
 
-	fmt.Printf("LS Capabilities: %#v\n", capabilities)
+	fmt.Printf("Log Message: %#v\n", starting_instance)
+
+	capabilites, err := p.ReadResponse()
+	if err != nil {
+		return fmt.Errorf("failed to read response: %v", err)
+	}
+
+	fmt.Printf("LS Capabilities: %#v\n", capabilites)
 
 	// After initialization syn/ack - the client sends an initialized _notification_ to the server
 	initNotification := map[string]any{
@@ -264,6 +276,7 @@ func (p *PythonClient) ReadResponses() ([]map[string]any, error) {
 // HoverAction sends a Hover action request to Pyright.
 func (p *PythonClient) HoverAction(ctx context.Context, params any) (any, error) {
 	// Create a Hover request
+	log.Print(params)
 	request := map[string]any{
 		"jsonrpc": "2.0",
 		"id":      p.sessionId.String(),
